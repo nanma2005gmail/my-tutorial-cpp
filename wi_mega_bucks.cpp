@@ -73,24 +73,57 @@ public:
   void print(int myformat = 1) {
     if(myformat == 1){
       date->print();
+      for(int i=0; i<size; i++){
+	cout << " " << arr_num[i];
+      }
+      cout << " Total number: "<< size << " Special ball Index: " << special_ball_index << endl;
     }else {
       cout << "here\n";
     }
   }
   ~cLnumber(){
+    cout << "debug: destructor cLnumber\n";
     delete[] arr_num;
   }
 };
 
 int read_number_file(char * myfile_name, vector <cLnumber> *myvec_ref);
 int main( int argc, char *argv[]){
-  vector <cLnumber> * v_all_winning_num;
-  read_number_file(argv[1], v_all_winning_num);  //need to figure out how to pass the ref/pt of the array of number class
+
+
+  vector<cLnumber> v_all_winning_num;
+  //  v_all_winning_num.push_back(cLnumber(5));
+  sDate    mydate("jan", 01, 2001);
+  cLnumber mynum(5);
+  mynum.addNewNum(6);
+  mynum.addNewNum(6);
+  mynum.addNewNum(6);
+  mynum.addNewNum(6);
+  mynum.addNewNum(6, true);
+  mynum.addDate(mydate);
+  mynum.print(1);
+
+  //  cout << "vector size: " << v_all_winning_num.size << "\n";
+  //  v_all_winning_num.push_back(&mynum);
+  
+  vector <sDate> v_all_date;
+  sDate * mydate1;
+  cout <<"After: vector size: " << v_all_date.size() << endl;
+  mydate1 = new sDate("jan",2,2020);
+  v_all_date.push_back(*mydate1);
+  mydate1 = new sDate("jan",3,2020);
+  v_all_date.push_back(*mydate1);
+  cout << "After: vector size: " << v_all_date.size() << endl;
+  cout << "After: print: ";  v_all_date[0].print(); cout << endl;
+  cout << "After: print: ";  v_all_date[1].print(); cout << endl;
+  
+  //  read_number_file(argv[1], v_all_winning_num);  //need to figure out how to pass the ref/pt of the array of number class
   return 0;
 }
 int read_number_file( char * myfile_name, vector <cLnumber> *myvec_ref) {
   ifstream myfile (myfile_name);
   
+
   sDate mycur_date;
   string myline;
   string myfirst_word;
@@ -98,30 +131,33 @@ int read_number_file( char * myfile_name, vector <cLnumber> *myvec_ref) {
   int mycur_vec_size;
   if(myfile.is_open()){
     while( getline(myfile, myline)){
+      cout << "here\n";
       myvec_ref->push_back(cLnumber(5));
+      cout << "here\n";
       mycur_vec_size = myvec_ref->size();
-      
+      cout << "here\n";
+
       cout << myline << endl;
       mystr_pos = myline.find_first_of(" ", 0);
       myfirst_word = myline.substr(0,mystr_pos);
 
-      cout << "here\n";
+      //      cout << "here\n";
       mycur_date.monthByString(myfirst_word);
-      cout << "here1\n";
+      //      cout << "here1\n";
       
       myline = myline.substr(mystr_pos+1);
       int mynxt_num;
-      cout << "here2\n";
+      //      cout << "here2\n";
 
       mynxt_num = stoi(myline, &mystr_pos);
       myline = myline.substr(mystr_pos+1);
       mycur_date.day = mynxt_num;
-      cout << "here3\n";
+      //      cout << "here3\n";
       
       mynxt_num = stoi(myline, &mystr_pos);
       myline = myline.substr(mystr_pos+1);
       mycur_date.year = mynxt_num;
-      cout << "here4\n";
+      //      cout << "here4\n";
 
       //      myvec_ref->at(mycur_vec_size).addNewNum(30);
       //      myvec_ref->at(mycur_vec_size).addNewNum(30);
