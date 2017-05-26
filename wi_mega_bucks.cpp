@@ -28,6 +28,27 @@ public:
     special_ball_index=-1;
     //cout << "deb: cLnumber Constructor\n";
   }
+  ~cLnumber( ){
+    //    cout << "deb: destructor cLnumber ";
+    //    cout << "Date:" << month << "/" << day << "/" << year;
+    //    cout << endl;
+  }
+  int getDay () { return day; }
+  int getMonth() { return month; }
+  int getYear() { return year;}
+  int getSize() { return size;}
+  int getNum(int i) { return arr_num[i];}
+  bool isMatchDate(int mymonth, int myday, int myyear) {
+    return (month==mymonth) & (day==myday) & (year==myyear);
+  }
+  bool isMatchNum(int mynum) {
+    for(int i=0; i<size; i++){
+      if(mynum == arr_num[i]){
+	return true;
+      }
+    }
+    return false;
+  }
   void addNewNum(int mynewNum, bool myflg_special_num=false){
     arr_num[size]=mynewNum;
     size++;
@@ -40,24 +61,19 @@ public:
   }
   void print(int myformat = 1) {
     if(myformat == 1){
-    cout << "Date:" << setw(2) << setfill('0')  << month << "/" << day << "/" << year;
-      for(int i=0; i<size; i++){
+      cout << "Date:" << setw(2) << setfill('0') << month << "." << day << "." << year;
+      for (int i=0; i<size; i++ ) {
 	cout << " " << setw(2) << setfill('0')  << arr_num[i];
       }
-      cout << " Total number: "<< size << " Special ball Index: " << special_ball_index << endl;
-    }else {
-      cout << "here\n";
-    }
-  }
-  ~cLnumber(){
-    //    cout << "deb: destructor cLnumber ";
-    //    cout << "Date:" << month << "/" << day << "/" << year;
-    //    cout << endl;
+	  //cout << " Total number: "<< size << " Special ball Index: " << special_ball_index << endl;
+    } else {
+	cout << "here\n";
+      }
   }
 };
 void cLnumber::setMonthByString(string mystr_month){
   nmUt_StringToLowerCase(mystr_month);
-  if     (mystr_month == "jan") month = 1;
+  if     (mystr_month == "jan") month = 1;  
   else if(mystr_month == "feb") month = 2;
   else if(mystr_month == "mar") month = 3;
   else if(mystr_month == "apr") month = 4;
@@ -74,7 +90,24 @@ void cLnumber::setMonthByString(string mystr_month){
   }
 }
 
-
+void wi_megabuck_count_winning( cLnumber &myc_num, cLnumber &myc_win_num) {
+  int i,j;
+  int mytmp;
+  int mycnt_match=0;
+  for(i=0; i<myc_num.getSize(); i++){
+    if(myc_win_num.isMatchNum(myc_num.getNum(i))){
+      mycnt_match++;
+    }
+  }
+  cout << "m=" << mycnt_match;
+  if      (mycnt_match <  3)  cout << " zero ";
+  else if (mycnt_match == 3)  cout << " $2   ";
+  else if (mycnt_match == 4)  cout << " $30  ";
+  else if (mycnt_match == 5)  cout << " $500 ";
+  else if (mycnt_match == 6)  cout << " JPOT ";
+  else                        cout << " IVLD ";
+  
+}
 
 int read_number_file(char * myfile_name, vector <cLnumber> &myvec_ref);
 int main( int argc, char *argv[]){
@@ -92,7 +125,17 @@ int main( int argc, char *argv[]){
   //  }
   cout << "debug: my number\n";
   for(cLnumber mycur_num : v_all_my_num){
-    mycur_num.print(1);
+    int mycur_day   = mycur_num.getDay();
+    int mycur_month = mycur_num.getMonth();
+    int mycur_year  = mycur_num.getYear();
+
+    for(cLnumber mycur_win_num : v_all_winning_num){
+      if(mycur_win_num.isMatchDate(mycur_month, mycur_day, mycur_year)){
+	mycur_num.print(1); cout << " <-> "; mycur_win_num.print(1); cout << "   ";
+	wi_megabuck_count_winning(mycur_num, mycur_win_num);
+	cout << endl;
+      }
+    }
   }
 
   return 0;
