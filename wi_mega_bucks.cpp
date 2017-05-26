@@ -61,7 +61,7 @@ public:
   }
   void print(int myformat = 1) {
     if(myformat == 1){
-      cout << "Date:" << setw(2) << setfill('0') << month << "." << day << "." << year;
+      cout << "Date:" << setw(2) << setfill('0') << month << "." << setw(2) << setfill('0') << day << "." << year;
       for (int i=0; i<size; i++ ) {
 	cout << " " << setw(2) << setfill('0')  << arr_num[i];
       }
@@ -100,7 +100,7 @@ void wi_megabuck_count_winning( cLnumber &myc_num, cLnumber &myc_win_num) {
     }
   }
   cout << "m=" << mycnt_match;
-  if      (mycnt_match <  3)  cout << " zero ";
+  if      (mycnt_match <  3)  cout << " .... ";
   else if (mycnt_match == 3)  cout << " $2   ";
   else if (mycnt_match == 4)  cout << " $30  ";
   else if (mycnt_match == 5)  cout << " $500 ";
