@@ -26,7 +26,7 @@ public:
     year=0;
     size=0;
     special_ball_index=-1;
-    cout << "deb: cLnumber Constructor\n";
+    //cout << "deb: cLnumber Constructor\n";
   }
   void addNewNum(int mynewNum, bool myflg_special_num=false){
     arr_num[size]=mynewNum;
@@ -141,12 +141,7 @@ int read_number_file( char * myfile_name, vector <cLnumber> &myvec_ref) {
 
   if(myfile.is_open()){
     while( getline(myfile, myline)){
-      cout  << "here1 ";
       mytmp_num_pt = new cLnumber(6);
-
-
-      cout << ">>" << myline << endl;
-      cout  << "here2\n";
 
       mystr_pos = myline.find_first_of(" ", 0);
       myfirst_word = myline.substr(0,mystr_pos);
@@ -157,7 +152,7 @@ int read_number_file( char * myfile_name, vector <cLnumber> &myvec_ref) {
       myline = myline.substr(mystr_pos+1);
       myyear = stoi(myline, &mystr_pos);
       mytmp_num_pt->addDate(myfirst_word, myday, myyear);
-      cout  << "here5\n";
+
 
       for(int i=0; i<6; i++){
 	myline = myline.substr(mystr_pos+1);
@@ -167,20 +162,19 @@ int read_number_file( char * myfile_name, vector <cLnumber> &myvec_ref) {
 
       myline = myline.substr(mystr_pos+1);
       double mynxt_num1 = stof(myline, &mystr_pos);
-      cout << ">>last number "  <<  setw(6) << setprecision(2) << setiosflags(ios::fixed) << mynxt_num1 ;
-      cout << endl;
-      
+      //      cout << ">>last number "  <<  setw(6) << setprecision(2) << setiosflags(ios::fixed) << mynxt_num1 ;
+      //      cout << endl;
       //      cout << "deb, reading files: line count: " << myvec_ref.size() << " ";
       //      cout << endl;
       //      myvec_ref.push_back(*mytmp_num_pt);
       //      myvec_ref[myvec_ref.size()-1].print();
       //cout << "deb: end line" << endl;
-      cout << "deb, reading files: line count: " << myvec_ref.size() << " ";
-      cout << endl;
+      //      cout << "deb, reading files: line count: " << myvec_ref.size() << " ";
+      //      cout << endl;
       myvec_ref.push_back(*mytmp_num_pt);
       delete mytmp_num_pt;
-      myvec_ref[myvec_ref.size()-1].print();
-      cout << endl;
+      //      myvec_ref[myvec_ref.size()-1].print();
+      //      cout << endl;
     }
   }
   cout << myfile_name << endl;
