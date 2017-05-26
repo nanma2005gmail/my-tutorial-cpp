@@ -40,9 +40,9 @@ public:
   }
   void print(int myformat = 1) {
     if(myformat == 1){
-    cout << "Date:" << month << "/" << day << "/" << year;
+    cout << "Date:" << setw(2) << setfill('0')  << month << "/" << day << "/" << year;
       for(int i=0; i<size; i++){
-	cout << " " << arr_num[i];
+	cout << " " << setw(2) << setfill('0')  << arr_num[i];
       }
       cout << " Total number: "<< size << " Special ball Index: " << special_ball_index << endl;
     }else {
@@ -81,48 +81,19 @@ int main( int argc, char *argv[]){
 
 
   vector <cLnumber> v_all_winning_num;
+  vector <cLnumber> v_all_my_num;
 
-
-  //--------------------------
-  //trying out class of class
-  cLnumber mynum(5);
-  mynum.addNewNum(6);
-  mynum.addNewNum(6);
-  mynum.addNewNum(6);
-  mynum.addNewNum(6);
-  mynum.addNewNum(6, true);
-  mynum.addDate("Apr", 24, 2020);
-  cout << "deb: class print: ";
-  mynum.print(1);
-  cout << endl;
-  //--------------------------
-  //trying out vector of classes
-  v_all_winning_num.push_back(mynum);
-
-  cLnumber *mynum_pt;
-  mynum_pt = new cLnumber(5);
-  mynum_pt->addNewNum(7);
-  mynum_pt->addNewNum(7);
-  mynum_pt->addNewNum(7);
-  mynum_pt->addNewNum(7);
-  mynum_pt->addNewNum(7, true);
-  mynum_pt->addDate("Apr", 24, 2021);
-  v_all_winning_num.push_back(*mynum_pt);
-  cout << "deb: vector class print: v0 ";
-  v_all_winning_num[0].print();
-  cout << endl;
-  cout << "deb: vector class print: v1 ";
-  v_all_winning_num[1].print();
-  cout << endl;
-
-  
   read_number_file(argv[1], v_all_winning_num);  
-  cout << "deb: after function call: \n";
-  v_all_winning_num[0].print(1);
-  v_all_winning_num[1].print(1);
-  v_all_winning_num[2].print(1);
-  v_all_winning_num[3].print(1);
-  v_all_winning_num[4].print(1);
+  read_number_file(argv[2], v_all_my_num);  
+
+  //  cout << "debug: all winning number\n";
+  //  for(cLnumber mycur_num : v_all_winning_num){
+  //    mycur_num.print(1);
+  //  }
+  cout << "debug: my number\n";
+  for(cLnumber mycur_num : v_all_my_num){
+    mycur_num.print(1);
+  }
 
   return 0;
 }
@@ -177,5 +148,6 @@ int read_number_file( char * myfile_name, vector <cLnumber> &myvec_ref) {
       //      cout << endl;
     }
   }
-  cout << myfile_name << endl;
+  //  cout << myfile_name << endl;
+  myfile.close();
 }
