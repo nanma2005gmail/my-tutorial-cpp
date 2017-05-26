@@ -8,29 +8,54 @@
 
 
 using namespace std;
-class sDate {
-public:
+
+class cLnumber {
   int month;
   int day;
   int year;
-  sDate(string, int , int );
-  void print(int);
-  void monthByString(string);
-    
-};
-sDate::sDate(string myM = "jan", int myD = 1,int myY = 1){
-  day = myD;
-  year = myY;
-  month = 1;
-}
-void sDate::print(int myformat=1){
-  if(myformat == 1){
-    cout << "Date:" << month << "/" << day << "/" << year;
-  } else {
-    cout << month << "/" << day << "/" << year;
+  int arr_num[7] ;
+  int size;
+  int special_ball_index;
+
+private:
+  void setMonthByString(string mystr_month);
+public:
+  cLnumber(int mysize){
+    month=0;
+    day=0;
+    year=0;
+    size=0;
+    special_ball_index=-1;
+    cout << "deb: cLnumber Constructor\n";
   }
-}
-void sDate::monthByString(string mystr_month){
+  void addNewNum(int mynewNum, bool myflg_special_num=false){
+    arr_num[size]=mynewNum;
+    size++;
+    special_ball_index = myflg_special_num ? size : -1;
+  }
+  void addDate(string myM, int myD, int myY) {
+    setMonthByString(myM);
+    day=myD;
+    year=myY;
+  }
+  void print(int myformat = 1) {
+    if(myformat == 1){
+    cout << "Date:" << month << "/" << day << "/" << year;
+      for(int i=0; i<size; i++){
+	cout << " " << arr_num[i];
+      }
+      cout << " Total number: "<< size << " Special ball Index: " << special_ball_index << endl;
+    }else {
+      cout << "here\n";
+    }
+  }
+  ~cLnumber(){
+    //    cout << "deb: destructor cLnumber ";
+    //    cout << "Date:" << month << "/" << day << "/" << year;
+    //    cout << endl;
+  }
+};
+void cLnumber::setMonthByString(string mystr_month){
   nmUt_StringToLowerCase(mystr_month);
   if     (mystr_month == "jan") month = 1;
   else if(mystr_month == "feb") month = 2;
@@ -49,157 +74,114 @@ void sDate::monthByString(string mystr_month){
   }
 }
 
-class cLnumber {
-  sDate * date;
-  int *arr_num ;
-  int size;
-  int special_ball_index;
 
-public:
-  cLnumber(int mysize){
-    arr_num = new int[mysize];
-    size=0;
-    special_ball_index=-1;
-  }
 
-  void addNewNum(int mynewNum, bool myflg_special_num=false){
-    arr_num[size]=mynewNum;
-    size++;
-    special_ball_index = myflg_special_num ? size : -1;
-  }
-  void addDate(sDate mynewDate) {
-    date = &mynewDate;
-  }
-  void print(int myformat = 1) {
-    if(myformat == 1){
-      date->print();
-      for(int i=0; i<size; i++){
-	cout << " " << arr_num[i];
-      }
-      cout << " Total number: "<< size << " Special ball Index: " << special_ball_index << endl;
-    }else {
-      cout << "here\n";
-    }
-  }
-  ~cLnumber(){
-    cout << "debug: destructor cLnumber\n";
-    delete[] arr_num;
-  }
-};
-
-int read_number_file(char * myfile_name, vector <cLnumber> *myvec_ref);
+int read_number_file(char * myfile_name, vector <cLnumber> &myvec_ref);
 int main( int argc, char *argv[]){
 
 
-  vector<cLnumber> v_all_winning_num;
-  //  v_all_winning_num.push_back(cLnumber(5));
-  sDate    mydate("jan", 01, 2001);
+  vector <cLnumber> v_all_winning_num;
+
+
+  //--------------------------
+  //trying out class of class
   cLnumber mynum(5);
   mynum.addNewNum(6);
   mynum.addNewNum(6);
   mynum.addNewNum(6);
   mynum.addNewNum(6);
   mynum.addNewNum(6, true);
-  mynum.addDate(mydate);
+  mynum.addDate("Apr", 24, 2020);
+  cout << "deb: class print: ";
   mynum.print(1);
+  cout << endl;
+  //--------------------------
+  //trying out vector of classes
+  v_all_winning_num.push_back(mynum);
 
-  //  cout << "vector size: " << v_all_winning_num.size << "\n";
-  //  v_all_winning_num.push_back(&mynum);
+  cLnumber *mynum_pt;
+  mynum_pt = new cLnumber(5);
+  mynum_pt->addNewNum(7);
+  mynum_pt->addNewNum(7);
+  mynum_pt->addNewNum(7);
+  mynum_pt->addNewNum(7);
+  mynum_pt->addNewNum(7, true);
+  mynum_pt->addDate("Apr", 24, 2021);
+  v_all_winning_num.push_back(*mynum_pt);
+  cout << "deb: vector class print: v0 ";
+  v_all_winning_num[0].print();
+  cout << endl;
+  cout << "deb: vector class print: v1 ";
+  v_all_winning_num[1].print();
+  cout << endl;
+
   
-  vector <sDate> v_all_date;
-  sDate * mydate1;
-  cout <<"After: vector size: " << v_all_date.size() << endl;
-  mydate1 = new sDate("jan",2,2020);
-  v_all_date.push_back(*mydate1);
-  mydate1 = new sDate("jan",3,2020);
-  v_all_date.push_back(*mydate1);
-  cout << "After: vector size: " << v_all_date.size() << endl;
-  cout << "After: print: ";  v_all_date[0].print(); cout << endl;
-  cout << "After: print: ";  v_all_date[1].print(); cout << endl;
-  
-  //  read_number_file(argv[1], v_all_winning_num);  //need to figure out how to pass the ref/pt of the array of number class
+  read_number_file(argv[1], v_all_winning_num);  
+  cout << "deb: after function call: \n";
+  v_all_winning_num[0].print(1);
+  v_all_winning_num[1].print(1);
+  v_all_winning_num[2].print(1);
+  v_all_winning_num[3].print(1);
+  v_all_winning_num[4].print(1);
+
   return 0;
 }
-int read_number_file( char * myfile_name, vector <cLnumber> *myvec_ref) {
+int read_number_file( char * myfile_name, vector <cLnumber> &myvec_ref) {
   ifstream myfile (myfile_name);
-  
 
-  sDate mycur_date;
+
   string myline;
   string myfirst_word;
   string::size_type mystr_pos;
-  int mycur_vec_size;
+  cLnumber *mytmp_num_pt;
+
+  int mynxt_num;
+  int myday;
+  int myyear;
+
   if(myfile.is_open()){
     while( getline(myfile, myline)){
-      cout << "here\n";
-      myvec_ref->push_back(cLnumber(5));
-      cout << "here\n";
-      mycur_vec_size = myvec_ref->size();
-      cout << "here\n";
+      cout  << "here1 ";
+      mytmp_num_pt = new cLnumber(6);
 
-      cout << myline << endl;
+
+      cout << ">>" << myline << endl;
+      cout  << "here2\n";
+
       mystr_pos = myline.find_first_of(" ", 0);
       myfirst_word = myline.substr(0,mystr_pos);
 
-      //      cout << "here\n";
-      mycur_date.monthByString(myfirst_word);
-      //      cout << "here1\n";
-      
       myline = myline.substr(mystr_pos+1);
-      int mynxt_num;
-      //      cout << "here2\n";
+      myday = stoi(myline, &mystr_pos);
 
-      mynxt_num = stoi(myline, &mystr_pos);
       myline = myline.substr(mystr_pos+1);
-      mycur_date.day = mynxt_num;
-      //      cout << "here3\n";
-      
-      mynxt_num = stoi(myline, &mystr_pos);
-      myline = myline.substr(mystr_pos+1);
-      mycur_date.year = mynxt_num;
-      //      cout << "here4\n";
+      myyear = stoi(myline, &mystr_pos);
+      mytmp_num_pt->addDate(myfirst_word, myday, myyear);
+      cout  << "here5\n";
 
-      //      myvec_ref->at(mycur_vec_size).addNewNum(30);
-      //      myvec_ref->at(mycur_vec_size).addNewNum(30);
-      //      myvec_ref->at(mycur_vec_size).addNewNum(30);
-      //      myvec_ref->at(mycur_vec_size).addNewNum(30);
-      //      myvec_ref->at(mycur_vec_size).addNewNum(30);
-      //      myvec_ref->at(mycur_vec_size).addDate(mycur_date);
-      //      myvec_ref->at(mycur_vec_size).print(1);      
-      
-      
+      for(int i=0; i<6; i++){
+	myline = myline.substr(mystr_pos+1);
+	mynxt_num = stoi(myline, &mystr_pos);
+	mytmp_num_pt->addNewNum(mynxt_num);
+      }
 
-      mynxt_num = stoi(myline, &mystr_pos);
       myline = myline.substr(mystr_pos+1);
-      cout <<  setw(6) << mynxt_num ;
-
-      mynxt_num = stoi(myline, &mystr_pos);
-      myline = myline.substr(mystr_pos+1);
-      cout <<  setw(6) << mynxt_num ;
-
-      mynxt_num = stoi(myline, &mystr_pos);
-      myline = myline.substr(mystr_pos+1);
-      cout <<  setw(6) << mynxt_num ;
-
-      mynxt_num = stoi(myline, &mystr_pos);
-      myline = myline.substr(mystr_pos+1);
-      cout <<  setw(6) << mynxt_num ;
-      mynxt_num = stoi(myline, &mystr_pos);
-      myline = myline.substr(mystr_pos+1);
-      cout <<  setw(6) << mynxt_num ;
-      mynxt_num = stoi(myline, &mystr_pos);
-      myline = myline.substr(mystr_pos+1);
-      cout <<  setw(6) << mynxt_num ;
-
       double mynxt_num1 = stof(myline, &mystr_pos);
-      //      myline = myline.substr(mystr_pos+1);
-      cout << " "  <<  setw(6) << setprecision(2) << setiosflags(ios::fixed) << mynxt_num1 ;
-
+      cout << ">>last number "  <<  setw(6) << setprecision(2) << setiosflags(ios::fixed) << mynxt_num1 ;
       cout << endl;
       
+      //      cout << "deb, reading files: line count: " << myvec_ref.size() << " ";
+      //      cout << endl;
+      //      myvec_ref.push_back(*mytmp_num_pt);
+      //      myvec_ref[myvec_ref.size()-1].print();
+      //cout << "deb: end line" << endl;
+      cout << "deb, reading files: line count: " << myvec_ref.size() << " ";
+      cout << endl;
+      myvec_ref.push_back(*mytmp_num_pt);
+      delete mytmp_num_pt;
+      myvec_ref[myvec_ref.size()-1].print();
+      cout << endl;
     }
   }
-    
-  
-  cout << myfile_name;
+  cout << myfile_name << endl;
 }
