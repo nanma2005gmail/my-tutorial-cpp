@@ -9,24 +9,84 @@
 
 using namespace std;
 
+enum enum_Loto {WI_MegaBucks=0, WI_Bager5, WI_SuperCash, WI_Pick4, WI_Pick3,Mega_Million, Power_Ball};
+enum enum_Month {jan_m=1, feb_m, mar_m, apr_m, may_m, jun_m, jul_m, aug_m, sep_m, oct_m, nov_m, dec_m};
+
+string enum_LotoToStr(enum_Loto mytype){
+  switch (mytype) {
+  case WI_MegaBucks: return "WI_MegaBucks";
+  case WI_Bager5:    return "WI_Bager5";
+  case WI_SuperCash: return "WI_SuperCash";
+  case WI_Pick4:     return "WI_Pick4";
+  case WI_Pick3:     return "WI_Pick3";
+  case Mega_Million: return "Mega_Million";
+  case Power_Ball:   return "Power_Ball";
+  default :          return "INVALID";
+  }
+}
+string enum_MonthToStr(enum_Month myMonth ){
+  switch (myMonth) {
+  case jan_m :   return "Jan";
+  case feb_m :   return "Feb";
+  case mar_m :   return "Mar";
+  case apr_m :   return "Apr";
+  case may_m :   return "May";
+  case jun_m :   return "Jun";
+  case jul_m :   return "Jul";
+  case aug_m :   return "Aug";
+  case sep_m :   return "Sep";
+  case oct_m :   return "Oct";
+  case nov_m :   return "Nov";
+  case dec_m :   return "Dec";
+  default  :   return "IVD";
+  }
+}
+enum_Month enum_MonthByStr(string myMonth){
+  if(myMonth == "jan")   return jan_m;
+  if(myMonth == "feb")   return feb_m;
+  if(myMonth == "mar")   return mar_m;
+  if(myMonth == "apr")   return apr_m;
+  if(myMonth == "may")   return may_m;
+  if(myMonth == "jun")   return jun_m;
+  if(myMonth == "jul")   return jul_m;
+  if(myMonth == "aug")   return aug_m;
+  if(myMonth == "sep")   return sep_m;
+  if(myMonth == "oct")   return oct_m;
+  if(myMonth == "nov")   return nov_m;
+  if(myMonth == "dec")   return dec_m;
+  return jan_m;
+}
 class cLnumber {
-  int month;
+  enum_Loto type;
+  enum_Month month;
   int day;
   int year;
   int arr_num[7] ;
   int size;
   int special_ball_index;
-
+  int special_ball_max_num;
+  int special_ball_min_num;
+  int max_num;
+  int min_num;
 private:
   void setMonthByString(string mystr_month);
 public:
-  cLnumber(int mysize){
-    month=0;
+  cLnumber(enum_Loto mytype){
+    type = mytype;
+    month= jan_m;
     day=0;
     year=0;
     size=0;
-    special_ball_index=-1;
-    //cout << "deb: cLnumber Constructor\n";
+    switch (type) {
+    case WI_MegaBucks:     special_ball_index=-1; special_ball_max_num=-1; special_ball_max_num=-1; max_num=49; max_num=1; break;
+    case WI_Bager5:        special_ball_index=-1; special_ball_max_num=-1; special_ball_max_num=-1; max_num=31; max_num=1; break;
+    case WI_SuperCash:     special_ball_index=-1; special_ball_max_num=-1; special_ball_max_num=-1; max_num=39; max_num=1; break;
+    case WI_Pick4:         special_ball_index=-1; special_ball_max_num=-1; special_ball_max_num=-1; max_num=9;  max_num=0; break;
+    case WI_Pick3:         special_ball_index=-1; special_ball_max_num=-1; special_ball_max_num=-1; max_num=9;  max_num=0; break;
+    case Mega_Million:     special_ball_index=5;  special_ball_max_num=15; special_ball_max_num=1;  max_num=75; max_num=1; break;
+    case Power_Ball:       special_ball_index=5;  special_ball_max_num=26; special_ball_max_num=1;  max_num=69; max_num=49;break;
+    default :              special_ball_index=-1; special_ball_max_num=-1; special_ball_max_num=-1; max_num=0;  max_num=0; break;
+    }
   }
   ~cLnumber( ){
     //    cout << "deb: destructor cLnumber ";
@@ -34,11 +94,12 @@ public:
     //    cout << endl;
   }
   int getDay () { return day; }
-  int getMonth() { return month; }
+  enum_Month getMonth() { return month; }
   int getYear() { return year;}
   int getSize() { return size;}
   int getNum(int i) { return arr_num[i];}
-  bool isMatchDate(int mymonth, int myday, int myyear) {
+  void setType(enum_Loto mytype) { type=mytype; }
+  bool isMatchDate(enum_Month  mymonth, int myday, int myyear) {
     return (month==mymonth) & (day==myday) & (year==myyear);
   }
   bool isMatchNum(int mynum) {
@@ -61,33 +122,21 @@ public:
   }
   void print(int myformat = 1) {
     if(myformat == 1){
-      cout << "Date:" << setw(2) << setfill('0') << month << "." << setw(2) << setfill('0') << day << "." << year;
-      for (int i=0; i<size; i++ ) {
-	cout << " " << setw(2) << setfill('0')  << arr_num[i];
-      }
-	  //cout << " Total number: "<< size << " Special ball Index: " << special_ball_index << endl;
-    } else {
-	cout << "here\n";
-      }
+      cout << enum_LotoToStr(type) << " Date:" << setw(2) << setfill('0') << enum_MonthToStr(month) << "." << setw(2) << setfill('0') << day << "." << year;
+    }
+    for (int i=0; i<size; i++ ) {
+      cout << " " << setw(2) << setfill('0')  << arr_num[i];
+    }
   }
 };
 void cLnumber::setMonthByString(string mystr_month){
   nmUt_StringToLowerCase(mystr_month);
-  if     (mystr_month == "jan") month = 1;  
-  else if(mystr_month == "feb") month = 2;
-  else if(mystr_month == "mar") month = 3;
-  else if(mystr_month == "apr") month = 4;
-  else if(mystr_month == "may") month = 5;
-  else if(mystr_month == "jun") month = 6;
-  else if(mystr_month == "jul") month = 7;
-  else if(mystr_month == "aug") month = 8;
-  else if(mystr_month == "sep") month = 9;
-  else if(mystr_month == "oct") month = 10;
-  else if(mystr_month == "nov") month = 11;
-  else if(mystr_month == "dec") month = 12;
-  else {
-    cout << "Error translate month in string : " << mystr_month << mystr_month << endl;
-  }
+  month = enum_MonthByStr(mystr_month);
+}
+cLnumber getRandomNum(enum_Loto mytype, enum_Month myMonth, int myDay, int myYear ){
+  cLnumber mynum(mytype);
+  
+  
 }
 
 void wi_megabuck_count_winning( cLnumber &myc_num, cLnumber &myc_win_num) {
@@ -126,12 +175,12 @@ int main( int argc, char *argv[]){
   cout << "debug: my number\n";
   for(cLnumber mycur_num : v_all_my_num){
     int mycur_day   = mycur_num.getDay();
-    int mycur_month = mycur_num.getMonth();
+    enum_Month mycur_month = mycur_num.getMonth();
     int mycur_year  = mycur_num.getYear();
 
     for(cLnumber mycur_win_num : v_all_winning_num){
       if(mycur_win_num.isMatchDate(mycur_month, mycur_day, mycur_year)){
-	mycur_num.print(1); cout << " <-> "; mycur_win_num.print(1); cout << "   ";
+	mycur_num.print(1); cout << " <-> "; mycur_win_num.print(0); cout << "   ";
 	wi_megabuck_count_winning(mycur_num, mycur_win_num);
 	cout << endl;
       }
@@ -155,7 +204,7 @@ int read_number_file( char * myfile_name, vector <cLnumber> &myvec_ref) {
 
   if(myfile.is_open()){
     while( getline(myfile, myline)){
-      mytmp_num_pt = new cLnumber(6);
+      mytmp_num_pt = new cLnumber(WI_MegaBucks);
 
       mystr_pos = myline.find_first_of(" ", 0);
       myfirst_word = myline.substr(0,mystr_pos);
