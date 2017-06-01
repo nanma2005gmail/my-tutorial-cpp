@@ -1,4 +1,4 @@
-//#include <stdlib.h>
+#include <stdlib.h>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -24,6 +24,18 @@ string enum_LotoToStr(enum_Loto mytype){
   case Power_Ball:   return "Power_Ball";
   default :          return "INVALID";
   }
+}
+
+enum_Loto enum_LotoByStr(string myLoto){
+   nmUt_StringToLowerCase(myLoto);
+   if(myLoto == "wi_megabucks")   return   WI_MegaBucks;
+   if(myLoto == "wi_bager5"   )   return   WI_Bager5   ;
+   if(myLoto == "wi_supercash")   return   WI_SuperCash;
+   if(myLoto == "wi_pick4"    )   return   WI_Pick4    ;
+   if(myLoto == "wi_pick3"    )   return   WI_Pick3    ;
+   if(myLoto == "mega_million")   return   Mega_Million;
+   if(myLoto == "power_ball"  )   return   Power_Ball;
+   return Power_Ball;
 }
 string enum_MonthToStr(enum_Month myMonth ){
   switch (myMonth) {
@@ -64,22 +76,21 @@ enum_Month enum_MonthByStr(string myMonth){
 class cLnumber {
 public:
   enum_Loto type;
-  int special_ball_index;
   int special_ball_max_num;
   int special_ball_min_num;
   int max_num;
   int min_num;
-  int total_num;
 private:
   enum_Month month;
   int day;
   int year;
   int arr_num[7] ;
   int cur_num_index;
+  int total_num;
+  int special_ball_index;
 private:
   void setMonthByString(string mystr_month);
-public:
-  cLnumber(enum_Loto mytype){
+  void cLnumber_init(enum_Loto mytype){
     type = mytype;
     month= jan_m;
     day=0;
@@ -91,37 +102,65 @@ public:
     case WI_SuperCash:     special_ball_index=-1; special_ball_max_num=-1; special_ball_max_num=-1; max_num=39; min_num=1; total_num=6; break;
     case WI_Pick4:         special_ball_index=-1; special_ball_max_num=-1; special_ball_max_num=-1; max_num=9;  min_num=0; total_num=6; break;
     case WI_Pick3:         special_ball_index=-1; special_ball_max_num=-1; special_ball_max_num=-1; max_num=9;  min_num=0; total_num=4; break;
-    case Mega_Million:     special_ball_index=5;  special_ball_max_num=15; special_ball_max_num=1;  max_num=75; min_num=1; total_num=3; break;
+    case Mega_Million:     special_ball_index=5;  special_ball_max_num=15; special_ball_max_num=1;  max_num=75; min_num=1; total_num=6; break;
     case Power_Ball:       special_ball_index=5;  special_ball_max_num=26; special_ball_max_num=1;  max_num=69; min_num=1; total_num=6; break;
     default :              special_ball_index=-1; special_ball_max_num=-1; special_ball_max_num=-1; max_num=0;  min_num=1; total_num=6; break;
     }
+  }
+public:
+  cLnumber(enum_Loto mytype){
+    cLnumber_init(mytype);
+  }
+  cLnumber(string mytype){
+    cLnumber_init(enum_LotoByStr(mytype));
   }
   ~cLnumber( ){
     //    cout << "deb: destructor cLnumber ";
     //    cout << "Date:" << month << "/" << day << "/" << year;
     //    cout << endl;
   }
+
   int getDay () { return day; }
   enum_Month getMonth() { return month; }
   int getYear() { return year;}
   int getSize() { return total_num;}
   int getNum(int i) { return arr_num[i];}
+  int getSpecialBallIndex(){ return special_ball_index;}
+  int getSpecialBall() { if(special_ball_index != -1)  return arr_num[special_ball_index]; else return -1;}
+    
   void setType(enum_Loto mytype) { type=mytype; }
   bool isMatchDate(enum_Month  mymonth, int myday, int myyear) {
     return (month==mymonth) & (day==myday) & (year==myyear);
   }
   bool isMatchNum(int mynum) {
-    for(int i=0; i<total_num; i++){
+    int mysize;
+    if(special_ball_index == -1){
+      mysize = total_num;
+    } else {
+      mysize = total_num-1;
+    }
+    for(int i=0; i<mysize; i++){
       if(mynum == arr_num[i]){
 	return true;
       }
     }
     return false;
   }
-  void addNewNum(int mynewNum, bool myflg_special_num=false){
+  bool isMatchSpecialNum(int mynum){
+    if(special_ball_index == -1){
+      printf("Error, no special ball\n");
+      return false;
+    }
+    if(arr_num[special_ball_index] == mynum){
+      return true;
+    } else {
+      return false;
+    }
+  }
+  void addNewNum(int mynewNum){
     arr_num[cur_num_index]=mynewNum;
     cur_num_index++;
-    special_ball_index = myflg_special_num ? cur_num_index : -1;
+    //special_ball_index = myflg_special_num ? cur_num_index : -1;
   }
   void addDate(string myM, int myD, int myY) {
     setMonthByString(myM);
@@ -140,6 +179,8 @@ public:
 void cLnumber::setMonthByString(string mystr_month){
   month = enum_MonthByStr(mystr_month);
 }
+
+
 
 //end clnumber
 //-----------------------------------------------------------
@@ -162,46 +203,87 @@ cLnumber getRandomNum(enum_Loto mytype, string myMonth, int myDay, int myYear ){
   }
 
   int mycur_max_num = mynum.max_num;
-  //  cout << "myhere0\n";
 
-  for(int i=0; i<mynum.total_num; i++){
+  for(int i=0; i<mynum.getSize(); i++){
     int mycur_pick_index = rand()%mycur_max_num;
     mynum.addNewNum(myv_possible_nums[mycur_pick_index]);
-    //    cout << "vector_size bef: " << myv_possible_nums.size() << " pick_index: "<< mycur_pick_index << "\n";
     myv_possible_nums.erase(myv_possible_nums.begin()+mycur_pick_index);
-    //    cout << "vector_size aft: " << myv_possible_nums.size() << "\n";
-    //    cout << "myhere2\n";
     mycur_max_num--;
   }
-  //  cout << "myhere3\n";
   return mynum;
 }
 
-int wi_megabuck_count_winning( cLnumber &myc_num, cLnumber &myc_win_num, bool myprintMsg=true) {
+int checkWinning( cLnumber &mycur_num, vector <cLnumber> &myv_win_num, enum_Loto mytype = WI_MegaBucks, bool myprintMsg=true) {
+
+  int        mycur_day   = mycur_num.getDay();
+  int        mycur_year  = mycur_num.getYear();
+  enum_Month mycur_month = mycur_num.getMonth();
+
   int i,j;
   int mytmp;
   int mycnt_match=0;
-  for(i=0; i<myc_num.getSize(); i++){
-    if(myc_win_num.isMatchNum(myc_num.getNum(i))){
-      mycnt_match++;
+  int mycnt_special_ball_match=0;
+  int mycur_special_ball_index=mycur_num.getSpecialBallIndex();
+  for(cLnumber mycur_win_num : myv_win_num){
+    if(mycur_win_num.isMatchDate(mycur_month, mycur_day, mycur_year)){
+      if(mycur_special_ball_index != -1){
+	if(mycur_win_num.isMatchSpecialNum(mycur_num.getSpecialBall())){
+	  mycnt_special_ball_match = 1;
+	}
+      }
+      for(i=0; i<mycur_num.getSize(); i++){
+	if(mycur_win_num.isMatchNum(mycur_num.getNum(i))){
+	  mycnt_match++;
+	}
+      }
+      if(myprintMsg && mytype == WI_MegaBucks){
+	mycur_num.print(1); cout << " <-> "; mycur_win_num.print(0); cout << "   ";
+	cout << "m=" << mycnt_match;
+	if      (mycnt_match <  3)  cout << " .... ";
+	else if (mycnt_match == 3)  cout << " $2   ";
+	else if (mycnt_match == 4)  cout << " $30  ";
+	else if (mycnt_match == 5)  cout << " $500 ";
+	else if (mycnt_match == 6)  cout << " JPOT ";
+	else                        cout << " IVLD ";
+	cout << endl;
+      }
+      if(myprintMsg && mytype == Power_Ball){
+	mycur_num.print(1); cout << " <-> "; mycur_win_num.print(0); cout << "   ";
+	cout << "m=" << mycnt_match << "  sm=" << mycnt_special_ball_match;
+	if      (mycnt_match <  3 && mycnt_special_ball_match == 0)  cout << " .... ";
+	else if (mycnt_match <= 1 && mycnt_special_ball_match == 1)  cout << " $4   ";
+	else if (mycnt_match == 2 && mycnt_special_ball_match == 1)  cout << " $7   ";
+	else if (mycnt_match == 3 && mycnt_special_ball_match == 0)  cout << " $7   ";
+	else if (mycnt_match == 3 && mycnt_special_ball_match == 1)  cout << " $100 ";
+	else if (mycnt_match == 4 && mycnt_special_ball_match == 0)  cout << " $100 ";
+	else if (mycnt_match == 4 && mycnt_special_ball_match == 1)  cout << " $50,000";
+	else if (mycnt_match == 5 && mycnt_special_ball_match == 0)  cout << " $100,000";
+	else if (mycnt_match == 5 && mycnt_special_ball_match == 1)  cout << " JPOT";
+	else                        cout << " IVLD ";
+	cout << endl;
+      }
+      if(myprintMsg && mytype == Mega_Million){
+	mycur_num.print(1); cout << " <-> "; mycur_win_num.print(0); cout << "   ";
+	cout << "m=" << mycnt_match << "  sm=" << mycnt_special_ball_match;
+	if      (mycnt_match <  3 && mycnt_special_ball_match == 0)  cout << " .... ";
+	else if (mycnt_match == 0 && mycnt_special_ball_match == 1)  cout << " $1   ";
+	else if (mycnt_match == 1 && mycnt_special_ball_match == 1)  cout << " $2   ";
+	else if (mycnt_match == 2 && mycnt_special_ball_match == 1)  cout << " $5   ";
+	else if (mycnt_match == 3 && mycnt_special_ball_match == 0)  cout << " $5   ";
+	else if (mycnt_match == 3 && mycnt_special_ball_match == 1)  cout << " $50 ";
+	else if (mycnt_match == 4 && mycnt_special_ball_match == 0)  cout << " $500 ";
+	else if (mycnt_match == 4 && mycnt_special_ball_match == 1)  cout << " $5,000";
+	else if (mycnt_match == 5 && mycnt_special_ball_match == 0)  cout << " $1,000,000";
+	else if (mycnt_match == 5 && mycnt_special_ball_match == 1)  cout << " JPOT";
+	else                        cout << " IVLD ";
+	cout << endl;
+      }
     }
-  }
-  if(myprintMsg){
-    myc_num.print(1); cout << " <-> "; myc_win_num.print(0); cout << "   ";
-    cout << "m=" << mycnt_match;
-    if      (mycnt_match <  3)  cout << " .... ";
-    else if (mycnt_match == 3)  cout << " $2   ";
-    else if (mycnt_match == 4)  cout << " $30  ";
-    else if (mycnt_match == 5)  cout << " $500 ";
-    else if (mycnt_match == 6)  cout << " JPOT ";
-    else                        cout << " IVLD ";
-    cout << endl;
   }
   return mycnt_match;
 }
 
-int read_number_file(char * myfile_name, vector <cLnumber> &myvec_ref);
-int read_number_file( char * myfile_name, vector <cLnumber> &myvec_ref) {
+int read_number_file( char * myfile_name, vector <cLnumber> &myvec_ref, string myLoto_type_in_str){
   ifstream myfile (myfile_name);
 
 
@@ -213,10 +295,10 @@ int read_number_file( char * myfile_name, vector <cLnumber> &myvec_ref) {
   int mynxt_num;
   int myday;
   int myyear;
-
+  
   if(myfile.is_open()){
     while( getline(myfile, myline)){
-      mytmp_num_pt = new cLnumber(WI_MegaBucks);
+      mytmp_num_pt = new cLnumber(myLoto_type_in_str);
 
       mystr_pos = myline.find_first_of(" ", 0);
       myfirst_word = myline.substr(0,mystr_pos);
@@ -235,25 +317,22 @@ int read_number_file( char * myfile_name, vector <cLnumber> &myvec_ref) {
 	mytmp_num_pt->addNewNum(mynxt_num);
       }
 
-      myline = myline.substr(mystr_pos+1);
-      double mynxt_num1 = stof(myline, &mystr_pos);
-      //      cout << ">>last number "  <<  setw(6) << setprecision(2) << setiosflags(ios::fixed) << mynxt_num1 ;
-      //      cout << endl;
-      //      cout << "deb, reading files: line count: " << myvec_ref.size() << " ";
-      //      cout << endl;
-      //      myvec_ref.push_back(*mytmp_num_pt);
-      //      myvec_ref[myvec_ref.size()-1].print();
-      //cout << "deb: end line" << endl;
-      //      cout << "deb, reading files: line count: " << myvec_ref.size() << " ";
-      //      cout << endl;
+      if(mytmp_num_pt->type == WI_MegaBucks){
+	myline = myline.substr(mystr_pos+1);
+	double mynxt_num1 = stof(myline, &mystr_pos);
+      }
       myvec_ref.push_back(*mytmp_num_pt);
       delete mytmp_num_pt;
-      //      myvec_ref[myvec_ref.size()-1].print();
-      //      cout << endl;
     }
   }
-  //  cout << myfile_name << endl;
   myfile.close();
+
+
+    printf("debug:\n");  
+    myvec_ref[0].print(1);
+    printf("debug: total_num=%d\n", myvec_ref[0].getSize());
+    printf("debug: special_ball=%d\n", myvec_ref[0].getSpecialBallIndex());
+  return 1;
 }
 
 
@@ -263,9 +342,9 @@ int main( int argc, char *argv[]){
 
   vector <cLnumber> v_all_winning_num;
   vector <cLnumber> v_all_my_num;
-
-  read_number_file(argv[1], v_all_winning_num);  
-  read_number_file(argv[2], v_all_my_num);  
+  enum_Loto mytype = enum_LotoByStr(argv[3]);
+  read_number_file(argv[1], v_all_winning_num, argv[3]);
+  read_number_file(argv[2], v_all_my_num, argv[3]);  
 
   //  cout << "debug: all winning number\n";
   //  for(cLnumber mycur_num : v_all_winning_num){
@@ -273,18 +352,10 @@ int main( int argc, char *argv[]){
   //  }
   cout << "debug: my number\n";
   for(cLnumber mycur_num : v_all_my_num){
-    int mycur_day   = mycur_num.getDay();
-    enum_Month mycur_month = mycur_num.getMonth();
-    int mycur_year  = mycur_num.getYear();
-
-    for(cLnumber mycur_win_num : v_all_winning_num){
-      if(mycur_win_num.isMatchDate(mycur_month, mycur_day, mycur_year)){
-	wi_megabuck_count_winning(mycur_num, mycur_win_num);
-	break;
-      }
-    }
+    checkWinning(mycur_num, v_all_winning_num, mytype, true);
   }
 
+  return 0;
 
   cLnumber mycur_num(WI_MegaBucks);
   int mycur_day;
@@ -304,40 +375,35 @@ int main( int argc, char *argv[]){
   int mytotal_6_match_draw = 0;
   srand (time(NULL));
   //  for(i=0; myfirst_6_match_draw == -1; i++){
-  for(i=0; i<100000000; i++){
+  for(i=0; i<1000; i++){
     mycur_num = getRandomNum(WI_MegaBucks, "May", 06, 2017);
     //    cout << "debug here " << i; mycur_num.print(1); cout << endl;
     mycur_day   = mycur_num.getDay();
     mycur_month = mycur_num.getMonth();
     mycur_year  = mycur_num.getYear();
 
-
-    for(cLnumber mycur_win_num : v_all_winning_num){
-      if( mycur_win_num.isMatchDate(mycur_month, mycur_day, mycur_year)){
-	mycur_wining_status = wi_megabuck_count_winning(mycur_num, mycur_win_num, false);
-	if(mycur_wining_status >= 3){
-	  mywin_cnt++;;
-	  if( myfirst_win_index==-1 )  myfirst_win_index = i;
-	}
-	if(mycur_wining_status == 3 ){
-	  if(myfirst_3_match_draw == -1 ) myfirst_3_match_draw =i;
-	  mytotal_3_match_draw++;
-	}
-	if(mycur_wining_status == 4 ){
-	  if(myfirst_4_match_draw == -1 ) myfirst_4_match_draw =i;
-	  mytotal_4_match_draw++;
-	}
-	if(mycur_wining_status == 5 ){
-	  if(myfirst_5_match_draw == -1 ) myfirst_5_match_draw =i;
-	  mytotal_5_match_draw++;
-	}
-	if(mycur_wining_status == 6 ){
-	  if(myfirst_6_match_draw == -1 ) myfirst_6_match_draw =i;
-	  mytotal_6_match_draw++;
-	}
-	break;
-      }
+    mycur_wining_status = checkWinning(mycur_num, v_all_winning_num, WI_MegaBucks, false);
+    if(mycur_wining_status >= 3){
+      mywin_cnt++;;
+      if( myfirst_win_index==-1 )  myfirst_win_index = i;
     }
+    if(mycur_wining_status == 3 ){
+      if(myfirst_3_match_draw == -1 ) myfirst_3_match_draw =i;
+      mytotal_3_match_draw++;
+    }
+    if(mycur_wining_status == 4 ){
+      if(myfirst_4_match_draw == -1 ) myfirst_4_match_draw =i;
+	  mytotal_4_match_draw++;
+    }
+    if(mycur_wining_status == 5 ){
+      if(myfirst_5_match_draw == -1 ) myfirst_5_match_draw =i;
+      mytotal_5_match_draw++;
+    }
+    if(mycur_wining_status == 6 ){
+      if(myfirst_6_match_draw == -1 ) myfirst_6_match_draw =i;
+      mytotal_6_match_draw++;
+    }
+    break;
   }
 
   int mywinning = 	 mytotal_3_match_draw*2 + mytotal_4_match_draw*30 + mytotal_5_match_draw*500 + mytotal_6_match_draw*1000000;
